@@ -322,7 +322,7 @@ export default function SignupPage() {
                         </button>
                       ))
                     ) : (
-                      <div className="px-4 py-2 text-gray-500 text-sm">Không tìm thấy tỉnh/thành phố</div>
+                      <div className="px-4 py-2 text-gray-500 text-sm">City/Province not found.</div>
                     )}
                   </div>
                 )}
@@ -372,15 +372,16 @@ export default function SignupPage() {
                 className="text-sm text-gray-600 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 I agree to the{" "}
-                <Link href="#" className="text-primary hover:underline">
+                <Link href="/terms" className="text-primary hover:underline">
                   Terms of Service
                 </Link>{" "}
                 and{" "}
-                <Link href="#" className="text-primary hover:underline">
+                <Link href="/privacy" className="text-primary hover:underline">
                   Privacy Policy
                 </Link>
               </label>
             </div>
+
 
             <Button
               type="submit"
@@ -395,7 +396,7 @@ export default function SignupPage() {
           <p className="text-center text-sm text-gray-600 mt-6">
             Already have an account?{" "}
             <Link href="/signin" className="text-primary font-medium hover:underline">
-              Sign in here
+              Sign In here
             </Link>
           </p>
         </div>

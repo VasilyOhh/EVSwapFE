@@ -26,7 +26,7 @@ export default function SignInPage() {
   e.preventDefault()
 
   try {
-    const response = await fetch("http://localhost:8080/api/users/login", {
+    const response = await fetch("http://localhost:8080/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -53,13 +53,19 @@ export default function SignInPage() {
       token: data.token,
     }
 
+    // ✅ Lưu token vào localStorage để dùng gọi API có bảo mật JWT
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("role", data.role);
+    localStorage.setItem("username", data.username);
+
+
     // Lưu user vào context (hook useAuth)
     login(user)
 
     // Chuyển hướng theo role
-    if (user.role === "DRIVER") router.push("/driver")
-    else if (user.role === "STAFF") router.push("/staff")
-    else if (user.role === "ADMIN") router.push("/admin")
+    if (user.role === "Driver") router.push("/booking")
+    else if (user.role === "Staff") router.push("/staff")
+    else if (user.role === "Admin") router.push("/admin")
     else router.push("/")
 
   } catch (error) {
@@ -129,7 +135,7 @@ export default function SignInPage() {
               </label>
               <Input
                 id="email"
-                type="email"
+                type="text"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

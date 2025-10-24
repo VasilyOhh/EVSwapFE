@@ -102,10 +102,10 @@ export function Footer() {
         <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-gray-400">© 2025 EVSwap. All rights reserved.</p>
           <div className="flex gap-6">
-            <Link href="#" className="text-sm text-gray-400 hover:text-white transition-colors">
+            <Link href="/privacy" className="text-sm text-gray-400 hover:text-white transition-colors">
               Privacy Policy
             </Link>
-            <Link href="#" className="text-sm text-gray-400 hover:text-white transition-colors">
+            <Link href="/terms" className="text-sm text-gray-400 hover:text-white transition-colors">
               Terms of Service
             </Link>
           </div>
