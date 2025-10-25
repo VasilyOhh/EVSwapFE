@@ -80,7 +80,7 @@ export default function FindStationsPage() {
               <div
                 className="absolute inset-0 opacity-30"
                 style={{
-                  backgroundImage: "url('/detailed-city-map.png')",
+                  backgroundImage: "url('/abstract-map-with-location-pins-and-roads.jpg')",
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                   filter: "blur(2px)",
