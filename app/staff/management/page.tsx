@@ -3,8 +3,9 @@
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Shield, Eye, Edit2, Trash2, Plus } from "lucide-react"
+import { Shield, Eye, Edit2, Trash2 } from "lucide-react"
 import { useState } from "react"
+import { BookingHeader } from "@/components/booking-header"
 
 type StaffRole = "manager" | "technician" | "support"
 
@@ -90,19 +91,7 @@ export default function StaffManagementPage() {
 
   return (
     <div className="flex-1 overflow-auto">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-8 py-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Staff Management</h1>
-            <p className="text-gray-600 mt-1">Manage team members and their permissions</p>
-          </div>
-          <Button className="bg-[#7241CE] hover:bg-[#5a2fa0] text-white">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Staff Member
-          </Button>
-        </div>
-      </div>
+      <BookingHeader title="Staff Management" />
 
       {/* Content */}
       <div className="p-8">

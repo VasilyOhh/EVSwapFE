@@ -7,15 +7,28 @@ import { useAuth } from "@/hooks/use-auth"
 import { useRouter } from "next/navigation"
 
 export function HeroSection() {
-  const { isLoggedIn, isLoading } = useAuth()
+  const { isLoggedIn, user, isLoading } = useAuth()
   const router = useRouter()
 
   const handleGetStarted = () => {
-    console.log("[v0] Get Started clicked - isLoggedIn:", isLoggedIn, "isLoading:", isLoading)
+    console.log("[v0] Get Started clicked - isLoggedIn:", isLoggedIn, "isLoading:", isLoading, "user:", user)
 
-    if (isLoggedIn) {
-      console.log("[v0] Redirecting to find-stations page")
-      router.push("/booking/find-stations")
+    if (isLoading) {
+      console.log("[v0] Still loading auth state, please wait")
+      return
+    }
+
+    if (isLoggedIn && user) {
+      const userRole = user.role?.toLowerCase()
+      console.log("[v0] User role (lowercase):", userRole)
+
+      if (userRole === "staff") {
+        console.log("[v0] Redirecting staff user to queue page")
+        router.push("/staff/queue")
+      } else {
+        console.log("[v0] Redirecting regular user to find-stations page")
+        router.push("/booking/find-stations")
+      }
     } else {
       // If not logged in, go to sign in page
       console.log("[v0] Redirecting to signin page")

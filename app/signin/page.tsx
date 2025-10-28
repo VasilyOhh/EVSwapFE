@@ -19,61 +19,58 @@ export default function SignInPage() {
   const router = useRouter()
 
   const handleGoogleSignIn = () => {
-     window.location.href = "http://localhost:8080/oauth2/authorization/google";
+    window.location.href = "http://localhost:8080/oauth2/authorization/google"
   }
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
-  e.preventDefault()
+    e.preventDefault()
 
-  try {
-    const response = await fetch("http://localhost:8080/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userName: email,
-        password: password,
-      }),
-    })
+    try {
+      const response = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userName: email,
+          password: password,
+        }),
+      })
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`Login failed: ${errorText}`)
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`Login failed: ${errorText}`)
+      }
+
+      const data = await response.json()
+
+      // Giả sử BE trả về: { fullName, email, role, token }
+      const user = {
+        fullName: data.fullName,
+        email: data.email,
+        userName: data.email.split("@")[0],
+        role: data.role,
+        token: data.token,
+      }
+
+      // ✅ Lưu token vào localStorage để dùng gọi API có bảo mật JWT
+      localStorage.setItem("token", data.token)
+      localStorage.setItem("role", data.role)
+      localStorage.setItem("username", data.username)
+
+      // Lưu user vào context (hook useAuth)
+      login(user)
+
+      // Chuyển hướng theo role
+      if (user.role === "Driver") router.push("/booking")
+      else if (user.role === "Staff") router.push("/staff/queue")
+      else if (user.role === "Admin") router.push("/admin")
+      else router.push("/")
+    } catch (error) {
+      console.error("Login error:", error)
+      alert("Invalid username or password")
     }
-
-    const data = await response.json()
-
-    // Giả sử BE trả về: { fullName, email, role, token }
-    const user = {
-      fullName: data.fullName,
-      email: data.email,
-      userName: data.email.split("@")[0],
-      role: data.role,
-      token: data.token,
-    }
-
-    // ✅ Lưu token vào localStorage để dùng gọi API có bảo mật JWT
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("role", data.role);
-    localStorage.setItem("username", data.username);
-
-
-    // Lưu user vào context (hook useAuth)
-    login(user)
-
-    // Chuyển hướng theo role
-    if (user.role === "Driver") router.push("/booking")
-    else if (user.role === "Staff") router.push("/staff")
-    else if (user.role === "Admin") router.push("/admin")
-    else router.push("/")
-
-  } catch (error) {
-    console.error("Login error:", error)
-    alert("Invalid username or password")
   }
-}
-
 
   return (
     <div className="min-h-screen bg-purple-50 flex items-center justify-center p-4">

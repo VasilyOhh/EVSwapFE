@@ -2,12 +2,36 @@
 
 import { Button } from "@/components/ui/button"
 import { Check } from "lucide-react"
+import { useAuth } from "@/hooks/use-auth"
+import { useRouter } from "next/navigation"
 
 export function PricingSection() {
+  const { isLoggedIn, user, isLoading } = useAuth()
+  const router = useRouter()
+
   const handleGetStarted = () => {
-    const ctaSection = document.getElementById("cta")
-    if (ctaSection) {
-      ctaSection.scrollIntoView({ behavior: "smooth" })
+    if (isLoading) {
+      console.log("[v0] Still loading auth state, please wait")
+      return
+    }
+
+    if (isLoggedIn && user) {
+      const userRole = user.role?.toLowerCase()
+      console.log("[v0] User role (lowercase):", userRole)
+
+      if (userRole === "staff") {
+        console.log("[v0] Redirecting staff user to queue page")
+        router.push("/staff/queue")
+      } else {
+        console.log("[v0] Redirecting regular user to find-stations page")
+        router.push("/booking/find-stations")
+      }
+    } else {
+      // If not logged in, scroll to CTA section
+      const ctaSection = document.getElementById("cta")
+      if (ctaSection) {
+        ctaSection.scrollIntoView({ behavior: "smooth" })
+      }
     }
   }
 

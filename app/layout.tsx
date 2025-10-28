@@ -7,6 +7,7 @@ import "./globals.css"
 
 export const metadata: Metadata = {
   title: "EVSwap",
+    generator: 'v0.app'
 }
 
 export default function RootLayout({
