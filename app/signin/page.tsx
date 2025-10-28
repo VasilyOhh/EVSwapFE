@@ -33,10 +33,12 @@ export default function SignInPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          userName: email,
-          password: password,
-        }),
+        body: JSON.stringify(
+          email.includes("@")
+            ? { email: email, password: password }      // nếu người dùng nhập email
+            : { userName: email, password: password }   // nếu người dùng nhập username
+        ),
+
       })
 
       if (!response.ok) {
@@ -176,11 +178,10 @@ export default function SignInPage() {
 
             <Button
               type="submit"
-              className={`w-full h-12 text-base ${
-                isFormValid
+              className={`w-full h-12 text-base ${isFormValid
                   ? "bg-purple-600 hover:bg-purple-700 text-white"
                   : "bg-gray-400 cursor-not-allowed text-white"
-              }`}
+                }`}
               disabled={!isFormValid}
             >
               Sign In
