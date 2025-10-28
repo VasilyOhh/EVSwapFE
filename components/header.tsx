@@ -34,8 +34,8 @@ export function Header() {
   }
 
   const getInitial = () => {
-    if (!user?.fullName) return "U"
-    return user.fullName.charAt(0).toUpperCase()
+    if (!user?.userName) return "U"
+    return user.userName.charAt(0).toUpperCase()
   }
 
   return (
@@ -114,9 +114,8 @@ export function Header() {
                   <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-lg shadow-2xl border border-gray-200 py-2 z-[100]">
                     <div className="px-4 py-3 border-b border-gray-100">
                       <p className="text-sm font-semibold text-gray-900">{user.fullName}</p>
-                      <p className="text-xs text-gray-500 mt-1">{user.email}</p>
-                      <p className="text-xs text-gray-500 mt-1">{user.role ? `Role: ${user.role}` : "Role: N/A"}
-                      </p>
+                      <p className="text-xs text-gray-500 mt-1">@{user.userName}</p>
+                      <p className="text-xs text-gray-500 mt-1">{user.role ? `Role: ${user.role}` : "Role: N/A"}</p>
                     </div>
                     <button
                       onClick={handleLogout}

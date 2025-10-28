@@ -27,11 +27,7 @@ export function PricingSection() {
         router.push("/booking/find-stations")
       }
     } else {
-      // If not logged in, scroll to CTA section
-      const ctaSection = document.getElementById("cta")
-      if (ctaSection) {
-        ctaSection.scrollIntoView({ behavior: "smooth" })
-      }
+      router.push("/signin")
     }
   }
 
@@ -43,12 +39,13 @@ export function PricingSection() {
           <p className="text-lg text-muted-foreground">Choose the plan that best fits your driving needs</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-8">
           <div className="bg-card border rounded-2xl p-8 flex flex-col">
             <div className="mb-6">
               <h3 className="text-xl font-semibold mb-2">Pay Per Swap</h3>
               <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-5xl font-bold">$25</span>
+                <span className="text-4xl font-bold">600.000</span>
+                <span className="text-2xl font-bold">VNĐ</span>
                 <span className="text-muted-foreground">/per swap</span>
               </div>
               <p className="text-sm text-muted-foreground">Perfect for occasional users</p>
@@ -78,7 +75,7 @@ export function PricingSection() {
             </Button>
           </div>
 
-          <div className="bg-card border-2 border-primary rounded-2xl p-8 flex flex-col relative shadow-lg scale-105">
+          <div className="bg-card border-2 border-primary rounded-2xl p-8 flex flex-col relative shadow-lg scale-110">
             <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
               Most Popular
             </div>
@@ -86,7 +83,8 @@ export function PricingSection() {
             <div className="mb-6">
               <h3 className="text-xl font-semibold mb-2">Unlimited Monthly</h3>
               <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-5xl font-bold">$149</span>
+                <span className="text-4xl font-bold">3.500.000</span>
+                <span className="text-2xl font-bold">VNĐ</span>
                 <span className="text-muted-foreground">/per month</span>
               </div>
               <p className="text-sm text-muted-foreground">Best for daily commuters</p>
@@ -120,7 +118,7 @@ export function PricingSection() {
             <div className="mb-6">
               <h3 className="text-xl font-semibold mb-2">Enterprise</h3>
               <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-5xl font-bold">Custom</span>
+                <span className="text-4xl font-bold">Custom</span>
                 <span className="text-muted-foreground">/pricing</span>
               </div>
               <p className="text-sm text-muted-foreground">For fleets and businesses</p>

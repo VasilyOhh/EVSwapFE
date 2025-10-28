@@ -18,6 +18,8 @@ export default function SignInPage() {
   const { login } = useAuth()
   const router = useRouter()
 
+  const isFormValid = email.trim() && password.trim()
+
   const handleGoogleSignIn = () => {
     window.location.href = "http://localhost:8080/oauth2/authorization/google"
   }
@@ -172,7 +174,15 @@ export default function SignInPage() {
               </Link>
             </div>
 
-            <Button type="submit" className="w-full h-12 text-base bg-purple-600 hover:bg-purple-700 text-white">
+            <Button
+              type="submit"
+              className={`w-full h-12 text-base ${
+                isFormValid
+                  ? "bg-purple-600 hover:bg-purple-700 text-white"
+                  : "bg-gray-400 cursor-not-allowed text-white"
+              }`}
+              disabled={!isFormValid}
+            >
               Sign In
             </Button>
           </form>

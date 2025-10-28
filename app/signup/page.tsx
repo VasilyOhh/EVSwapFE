@@ -10,8 +10,7 @@ import Link from "next/link"
 import { User, Mail, Lock, ArrowLeft, MapPin, ChevronDown } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { useRouter } from "next/navigation"
-import { useGoogleLogin } from "@react-oauth/google";
-
+import { useGoogleLogin } from "@react-oauth/google"
 
 const VIETNAM_PROVINCES = [
   "Tuyên Quang",
@@ -163,7 +162,6 @@ export default function SignupPage() {
     },
   })
 
-
   return (
     <div className="min-h-screen bg-purple-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -186,7 +184,6 @@ export default function SignupPage() {
             className="w-full mb-6 h-12 text-base bg-transparent"
             onClick={() => loginWithGoogle()}
           >
-
             <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
               <path
                 fill="currentColor"
@@ -372,21 +369,21 @@ export default function SignupPage() {
                 className="text-sm text-gray-600 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 I agree to the{" "}
-                <Link href="/terms" className="text-primary hover:underline">
+                <Link href="/terms" className="text-purple-600 hover:text-purple-700 hover:underline">
                   Terms of Service
                 </Link>{" "}
                 and{" "}
-                <Link href="/privacy" className="text-primary hover:underline">
+                <Link href="/privacy" className="text-purple-600 hover:text-purple-700 hover:underline">
                   Privacy Policy
                 </Link>
               </label>
             </div>
 
-
             <Button
               type="submit"
-              className={`w-full h-12 text-base ${isFormValid ? "bg-purple-600 hover:bg-purple-700" : "bg-gray-400 cursor-not-allowed"
-                }`}
+              className={`w-full h-12 text-base ${
+                isFormValid ? "bg-purple-600 hover:bg-purple-700" : "bg-gray-400 cursor-not-allowed"
+              }`}
               disabled={!isFormValid}
             >
               Sign Up
@@ -395,7 +392,7 @@ export default function SignupPage() {
 
           <p className="text-center text-sm text-gray-600 mt-6">
             Already have an account?{" "}
-            <Link href="/signin" className="text-primary font-medium hover:underline">
+            <Link href="/signin" className="text-purple-600 hover:text-purple-700 font-medium">
               Sign In here
             </Link>
           </p>
