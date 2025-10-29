@@ -132,7 +132,7 @@ export default function SignInPage() {
           <form onSubmit={handleEmailSignIn} className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-900 mb-2">
-                Email
+                Email or User Name
               </label>
               <Input
                 id="email"

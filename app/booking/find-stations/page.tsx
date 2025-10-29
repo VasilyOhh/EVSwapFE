@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react" 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
@@ -61,6 +61,16 @@ const mockStations: Station[] = [
 
 export default function FindStationsPage() {
   const [searchQuery, setSearchQuery] = useState("")
+  const [MapComponent, setMapComponent] = useState<any>(null)
+
+  // Load map component chỉ ở client
+  useEffect(() => {
+    const loadMap = async () => {
+      const module = await import("@/components/NearbyStationsMap")
+      setMapComponent(() => module.default)
+    }
+    loadMap()
+  }, [])
 
   const filteredStations = mockStations.filter(
     (station) =>
@@ -76,35 +86,8 @@ export default function FindStationsPage() {
         <div className="grid grid-cols-4 gap-6 p-8 h-full">
           {/* Map Section */}
           <div className="col-span-2 row-span-2">
-            <Card className="h-full bg-gradient-to-br from-[#E8F5E9] to-[#F1F8E9] border-0 shadow-lg flex flex-col items-center justify-center relative overflow-hidden">
-              <div
-                className="absolute inset-0 opacity-30"
-                style={{
-                  backgroundImage: "url('/abstract-map-with-location-pins-and-roads.jpg')",
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  filter: "blur(2px)",
-                }}
-              />
-
-              <div className="absolute top-20 left-20 w-3 h-3 rounded-full bg-[#A2F200]"></div>
-              <div className="absolute bottom-32 right-16 w-3 h-3 rounded-full bg-red-500"></div>
-              <div className="absolute top-1/3 right-1/4 w-3 h-3 rounded-full bg-[#A2F200]"></div>
-
-              <div className="text-center relative z-10">
-                <div className="w-16 h-16 rounded-full border-4 border-[#7241CE] flex items-center justify-center mx-auto mb-4">
-                  <MapPin className="w-8 h-8 text-[#7241CE]" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Nearby Stations</h3>
-                <p className="text-sm text-gray-600 mb-6">Find and reserve battery swap stations</p>
-                <Button className="bg-[#A2F200] text-black hover:bg-[#8fd600]">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  Use My Location
-                </Button>
-              </div>
-              <p className="absolute bottom-4 text-xs text-gray-500 relative z-10">
-                Interactive map with real-time availability
-              </p>
+            <Card className="h-full border-0 shadow-lg overflow-hidden">
+              {MapComponent ? <MapComponent /> : <div className="p-4">Loading map...</div>}
             </Card>
           </div>
 
