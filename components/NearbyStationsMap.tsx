@@ -76,7 +76,7 @@ export default function NearbyStationsMap() {
       <MapContainer
         center={userPosition}
         zoom={13}
-        style={{ height: "500px", width: "100%", borderRadius: "12px" }}
+        style={{ height: "1000px", width: "100%", borderRadius: "12px" }}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

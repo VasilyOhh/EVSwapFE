@@ -2,8 +2,15 @@
 
 import { MapPin, CheckCircle2, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
 
 export function StationFinderSection() {
+  const router = useRouter()
+
+  const handleViewFullMap = () => {
+    router.push("/map")
+  }
+
   return (
     <section id="stations" className="py-24 bg-white scroll-mt-16">
       <div className="max-w-7xl mx-auto px-4 mb-12">
@@ -17,7 +24,11 @@ export function StationFinderSection() {
 
       <div className="bg-[#7241CE]/10 py-16 md:py-24 mb-12 relative overflow-hidden">
         <div className="absolute inset-0 opacity-20">
-          <img src="/abstract-map-with-location-pins-and-roads.jpg" alt="" className="w-full h-full object-cover blur-sm" />
+          <img
+            src="/abstract-map-with-location-pins-and-roads.jpg"
+            alt=""
+            className="w-full h-full object-cover blur-sm"
+          />
         </div>
         <div className="max-w-7xl mx-auto px-4 relative z-10">
           <div className="flex flex-col items-center justify-center min-h-[450px]">
@@ -28,7 +39,10 @@ export function StationFinderSection() {
             <p className="text-gray-600 mb-6 text-center max-w-md">
               Find the nearest station with real-time availability status
             </p>
-            <Button className="h-12 px-6 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-semibold">
+            <Button
+              onClick={handleViewFullMap}
+              className="h-12 px-6 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-semibold"
+            >
               View Full Map
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>

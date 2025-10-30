@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react" 
+import { useState, useEffect } from "react"
+import useSWR from "swr"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
-import { MapPin, Clock, Star, Filter, Zap } from "lucide-react"
+import { MapPin, Clock, Star, Filter, Zap, Loader2 } from "lucide-react"
 import { BookingHeader } from "@/components/booking-header"
 
 interface Station {
@@ -20,63 +21,152 @@ interface Station {
   status: "open" | "maintenance" | "closed"
 }
 
-const mockStations: Station[] = [
-  {
-    id: "1",
-    name: "Downtown Hub",
-    address: "123 Main St, City Center",
-    available: 12,
-    total: 20,
-    time: "< 5 min",
-    distance: "0.8 km",
-    price: 25,
-    rating: 4.8,
-    status: "open",
-  },
-  {
-    id: "2",
-    name: "Mall Station",
-    address: "456 Shopping Ave",
-    available: 8,
-    total: 15,
-    time: "10-15 min",
-    distance: "1.2 km",
-    price: 25,
-    rating: 4.6,
-    status: "open",
-  },
-  {
-    id: "3",
-    name: "Airport Terminal",
-    address: "789 Airport Rd",
-    available: 0,
-    total: 25,
-    time: "Closed",
-    distance: "5.4 km",
-    price: 30,
-    rating: 4.9,
-    status: "maintenance",
-  },
-]
+// Fetcher với authentication token
+const fetcher = async (url: string) => {
+  const token = localStorage.getItem('token');
+  
+  console.log('Fetching:', url);
+  console.log('Token exists:', !!token);
+  
+  const res = await fetch(url, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  
+  console.log('Response status:', res.status);
+  
+  if (!res.ok) {
+    throw new Error(`API Error: ${res.status} - ${res.statusText}`);
+  }
+  
+  const data = await res.json();
+  console.log('Raw data from API:', data);
+  
+  // Transform data từ backend format sang Station interface
+  return data.map((item: any) => ({
+    id: item.stationID?.toString() || Math.random().toString(),
+    name: item.stationName || 'Unknown Station',
+    address: item.address || 'No address',
+    available: item.availableSlots || 5,
+    total: item.totalSlots || 10,
+    time: item.operatingHours || '24/7',
+    distance: `${item.distanceKm?.toFixed(1) || 0} km`,
+    price: item.pricePerSwap || 5,
+    rating: item.rating || 4.5,
+    status: (item.status?.toLowerCase() || 'open') as "open" | "maintenance" | "closed"
+  }));
+};
 
 export default function FindStationsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [MapComponent, setMapComponent] = useState<any>(null)
+  const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null)
+  const [locationError, setLocationError] = useState<string | null>(null)
+  const [isLoadingLocation, setIsLoadingLocation] = useState(true)
 
-  // Load map component chỉ ở client
+  // Lấy vị trí người dùng
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          })
+          setIsLoadingLocation(false)
+          console.log('User location:', position.coords.latitude, position.coords.longitude)
+        },
+        (error) => {
+          console.error("Geolocation error:", error)
+          setLocationError("Could not get your location. Using default location (HCM City).")
+          // Fallback to HCM City
+          setUserLocation({
+            lat: 10.75819,
+            lng: 106.65405
+          })
+          setIsLoadingLocation(false)
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      )
+    } else {
+      setLocationError("Geolocation is not supported by your browser")
+      setUserLocation({
+        lat: 10.75819,
+        lng: 106.65405
+      })
+      setIsLoadingLocation(false)
+    }
+  }, [])
+
+  // Load map component
   useEffect(() => {
     const loadMap = async () => {
-      const module = await import("@/components/NearbyStationsMap")
-      setMapComponent(() => module.default)
+      try {
+        const module = await import("@/components/NearbyStationsMap")
+        setMapComponent(() => module.default)
+      } catch (err) {
+        console.error('Failed to load map:', err)
+      }
     }
     loadMap()
   }, [])
 
-  const filteredStations = mockStations.filter(
-    (station) =>
-      station.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      station.address.toLowerCase().includes(searchQuery.toLowerCase()),
+  const radiusKm = 5
+
+  // Build API URL
+  const apiUrl = userLocation 
+    ? `http://localhost:8080/api/stations/nearby?lat=${userLocation.lat}&lng=${userLocation.lng}&radiusKm=${radiusKm}`
+    : null
+
+  // Fetch stations với authentication
+  const {
+    data: stations = [],
+    isLoading,
+    error,
+    mutate
+  } = useSWR<Station[]>(
+    apiUrl,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 60000,
+      onError: (err) => {
+        console.error('SWR Error:', err)
+      }
+    }
   )
+
+  const filteredStations = stations
+    .filter((s) => s.name && s.address)
+    .filter((station) =>
+      station.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      station.address.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+
+  const refreshLocation = () => {
+    setIsLoadingLocation(true)
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        })
+        setLocationError(null)
+        setIsLoadingLocation(false)
+        mutate() // Refresh stations data
+      },
+      (error) => {
+        setLocationError(error.message)
+        setIsLoadingLocation(false)
+      }
+    )
+  }
 
   return (
     <>
@@ -87,12 +177,55 @@ export default function FindStationsPage() {
           {/* Map Section */}
           <div className="col-span-2 row-span-2">
             <Card className="h-full border-0 shadow-lg overflow-hidden">
-              {MapComponent ? <MapComponent /> : <div className="p-4">Loading map...</div>}
+              {MapComponent ? (
+                <MapComponent />
+              ) : (
+                <div className="p-4 text-gray-500">Loading map...</div>
+              )}
             </Card>
           </div>
 
           {/* Stations List */}
           <div className="col-span-2 flex flex-col">
+            {/* Location Status */}
+            {locationError && (
+              <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-yellow-800 text-sm flex items-center justify-between">
+                <span>⚠️ {locationError}</span>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={refreshLocation}
+                  className="ml-2 h-7"
+                >
+                  Retry
+                </Button>
+              </div>
+            )}
+
+            {isLoadingLocation && (
+              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded text-blue-800 text-sm flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Getting your location...
+              </div>
+            )}
+
+            {userLocation && !isLoadingLocation && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded text-green-800 text-sm flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4" />
+                  <span>Location: {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}</span>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={refreshLocation}
+                  className="h-6 px-2"
+                >
+                  Refresh
+                </Button>
+              </div>
+            )}
+
             <div className="mb-4">
               <div className="flex items-center gap-2 mb-3">
                 <Button variant="outline" size="sm" className="gap-2 bg-transparent">
@@ -109,11 +242,42 @@ export default function FindStationsPage() {
             </div>
 
             <div className="flex-1 overflow-auto space-y-3">
-              <h3 className="font-semibold text-gray-900 text-sm">Available Stations</h3>
+              <h3 className="font-semibold text-gray-900 text-sm">
+                {isLoading ? "Loading stations..." : `Available Stations (${filteredStations.length})`}
+              </h3>
+
+              {error && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+                  <strong>Failed to load stations</strong>
+                  <p className="mt-1 text-xs">{error.message}</p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => mutate()}
+                    className="mt-2"
+                  >
+                    Try Again
+                  </Button>
+                </div>
+              )}
+
+              {isLoading && (
+                <div className="p-4 text-center text-gray-500 flex items-center justify-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Loading stations...
+                </div>
+              )}
+
+              {!isLoading && filteredStations.length === 0 && !error && (
+                <div className="p-4 text-center text-gray-500">
+                  No stations found within {radiusKm}km
+                </div>
+              )}
+
               {filteredStations.map((station) => (
                 <Card key={station.id} className="p-4 hover:shadow-md transition-shadow flex flex-col">
                   <div className="flex items-start justify-between mb-2">
-                    <div>
+                    <div className="flex-1">
                       <h4 className="font-semibold text-gray-900 text-sm">{station.name}</h4>
                       <p className="text-xs text-gray-500">{station.address}</p>
                     </div>
@@ -122,6 +286,9 @@ export default function FindStationsPage() {
                     )}
                     {station.status === "maintenance" && (
                       <span className="px-2 py-1 bg-red-500 text-white text-xs rounded font-medium">maintenance</span>
+                    )}
+                    {station.status === "closed" && (
+                      <span className="px-2 py-1 bg-gray-500 text-white text-xs rounded font-medium">closed</span>
                     )}
                   </div>
 
@@ -151,7 +318,9 @@ export default function FindStationsPage() {
                   </div>
 
                   <div className="flex justify-end">
-                    <Button className="bg-[#A2F200] text-black hover:bg-[#8fd600] h-7 px-4 text-xs">Reserve</Button>
+                    <Button className="bg-[#A2F200] text-black hover:bg-[#8fd600] h-7 px-4 text-xs">
+                      Reserve
+                    </Button>
                   </div>
                 </Card>
               ))}
