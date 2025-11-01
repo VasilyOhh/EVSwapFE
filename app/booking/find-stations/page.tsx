@@ -119,7 +119,6 @@ export default function FindStationsPage() {
     loadMap()
   }, [])
 
-
   // Build API URL
   const apiUrl = userLocation 
     ? `http://localhost:8080/api/stations/nearby?lat=${userLocation.lat}&lng=${userLocation.lng}&radiusKm=${radiusKm}`
@@ -187,10 +186,10 @@ export default function FindStationsPage() {
       <BookingHeader title="Find Stations" />
 
       <div className="flex-1 overflow-auto">
-        <div className="grid grid-cols-4 gap-6 p-8 h-full">
-          {/* Map Section */}
-          <div className="col-span-2 row-span-2">
-            <Card className="h-full border-0 shadow-lg overflow-hidden">
+        <div className="flex gap-6 p-8">
+          {/* Map Section - grows with content */}
+          <div className="w-1/2 flex-shrink-0">
+            <Card className="border-0 shadow-lg overflow-hidden" style={{ minHeight: '600px' }}>
               {MapComponent ? (
                 <MapComponent />
               ) : (
@@ -200,7 +199,7 @@ export default function FindStationsPage() {
           </div>
 
           {/* Stations List */}
-          <div className="col-span-2 flex flex-col">
+          <div className="w-1/2 flex flex-col">
             {/* Location Status */}
             {locationError && (
               <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-yellow-800 text-sm flex items-center justify-between">
@@ -220,23 +219,6 @@ export default function FindStationsPage() {
               <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded text-blue-800 text-sm flex items-center gap-2">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 Getting your location...
-              </div>
-            )}
-
-            {userLocation && !isLoadingLocation && (
-              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded text-green-800 text-sm flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4" />
-                  <span>Location: {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}</span>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={refreshLocation}
-                  className="h-6 px-2"
-                >
-                  Refresh
-                </Button>
               </div>
             )}
 
@@ -282,7 +264,7 @@ export default function FindStationsPage() {
               />
             </div>
 
-            <div className="flex-1 overflow-auto space-y-3">
+            <div className="space-y-3 pb-4">
               <h3 className="font-semibold text-gray-900 text-sm">
                 {isLoading ? "Loading stations..." : `Available Stations (${filteredStations.length})`}
               </h3>

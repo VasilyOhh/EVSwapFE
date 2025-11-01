@@ -27,12 +27,24 @@ export default function ForgotPasswordPage() {
     setLoading(true)
 
     try {
-      // Simulate API call for password reset
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const response = await fetch("http://localhost:8080/api/auth/forgot-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || "Failed to send reset email")
+      }
+
+      // Nếu thành công
       setSubmitted(true)
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error:", error)
-      alert("An error occurred. Please try again.")
+      alert(error.message || "Có lỗi xảy ra. Vui lòng thử lại.")
     } finally {
       setLoading(false)
     }

@@ -47,8 +47,24 @@ export default function NearbyStationsMap() {
             const res = await fetch(
               `http://localhost:8080/api/stations/nearby?lat=${lat}&lng=${lng}&radiusKm=5`
             );
-            const data = await res.json();
-            setStations(data);
+            const rawData = await res.json()
+            const mappedStations = rawData.map((s: any) => ({
+              id: s.stationID.toString(),
+              name: s.stationName,
+              address: s.address,
+              latitude: parseFloat(s.latitude),
+              longitude: parseFloat(s.longitude),
+              distanceKm: parseFloat(s.distanceKm ?? "0"),
+              available: s.inventory ?? 0,
+              total: s.inventory ?? 0,
+              time: "< 5 min",
+              price: 25,
+              rating: 4.5,
+              status: s.status?.toLowerCase() === "open" ? "open" : "maintenance",
+            }))
+
+            setStations(mappedStations)
+
           } catch (err) {
             console.error("Error fetching stations:", err);
           } finally {
@@ -71,7 +87,7 @@ export default function NearbyStationsMap() {
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-semibold mb-3">📍 Nearby EV Stations</h2>
+      <h2 className="text-xl font-semibold mb-3"> Nearby EV Stations</h2>
 
       <MapContainer
         center={userPosition}
@@ -89,19 +105,20 @@ export default function NearbyStationsMap() {
 
         {stations.map((s) => (
           <Marker
-            key={s.stationID}
+            key={s.id}
             position={[s.latitude, s.longitude]}
             icon={stationIcon}
           >
             <Popup>
-              <b>{s.stationName}</b>
+              <b>{s.name}</b>
               <br />
               {s.address}
               <br />
-              ⚡ {s.distanceKm?.toFixed(2)} km
+              ⚡ {s.distanceKm ? s.distanceKm.toFixed(2) + " km" : "?"}
             </Popup>
           </Marker>
         ))}
+
       </MapContainer>
     </div>
   );
