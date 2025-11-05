@@ -1,97 +1,142 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Zap, Clock } from "lucide-react"
 import { BookingHeader } from "@/components/booking-header"
+import { VehicleSelector } from "@/components/vehicle-selector"
+import { ServicePackageSelector } from "@/components/service-package-selector"
+import { MapPin, Clock } from "lucide-react"
+
+interface Vehicle {
+  id: number
+  name: string
+  model: string
+  battery: string
+  status: string
+  lastSwap: string
+}
+
+interface Station {
+  id: string
+  name: string
+  address: string
+  time: string
+  distance: string
+}
 
 export default function SwapPage() {
+  const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null)
+  const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null)
+  const [selectedStation, setSelectedStation] = useState<Station | null>(null)
+
+  // Mock vehicles data - replace with actual data from API/localStorage
+  const [vehicles] = useState<Vehicle[]>([
+    {
+      id: 1,
+      name: "VIN12345",
+      model: "Tesla Model 3",
+      battery: "75 kWh",
+      status: "Active",
+      lastSwap: "2024-01-15",
+    },
+    {
+      id: 2,
+      name: "VIN67890",
+      model: "VinFast VF8",
+      battery: "87.7 kWh",
+      status: "Active",
+      lastSwap: "2024-01-10",
+    },
+  ])
+
+  // Mock monthly subscription data - replace with actual data from API
+  const monthlySubscription = {
+    isActive: true,
+    usageCount: 8,
+    expiryDate: "2024-02-15",
+  }
+
+  // Load selected station from localStorage
+  useEffect(() => {
+    const stationData = localStorage.getItem("selectedStation")
+    if (stationData) {
+      setSelectedStation(JSON.parse(stationData))
+    }
+  }, [])
+
+  const handleBooking = () => {
+    if (!selectedVehicleId || !selectedPackageId) {
+      alert("Please select a vehicle and service package")
+      return
+    }
+
+    // Handle booking logic here
+    console.log("Booking:", {
+      vehicleId: selectedVehicleId,
+      packageId: selectedPackageId,
+      station: selectedStation,
+    })
+
+    alert("Booking confirmed!")
+  }
+
   return (
     <>
-      <BookingHeader title="Swap" />
+      <BookingHeader title="Battery Swap Booking" />
 
       <div className="flex-1 overflow-auto p-8">
-        <div className="grid grid-cols-2 gap-8 max-w-6xl">
-          {/* Active Booking */}
+        {/* Station Info Banner */}
+        {selectedStation && (
+          <div className="mb-6 p-4 bg-[#A2F200]/10 border border-[#A2F200]/30 rounded-lg">
+            <h3 className="font-semibold text-gray-900 mb-2">Selected Station</h3>
+            <div className="flex items-start gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-gray-600" />
+                <div>
+                  <p className="font-medium text-gray-900">{selectedStation.name}</p>
+                  <p className="text-gray-600">{selectedStation.address}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-gray-600" />
+                <span className="text-gray-700">{selectedStation.time}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-2 gap-8 max-w-7xl">
+          {/* Left: Vehicle Selection */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Active Booking</h3>
-            <p className="text-sm text-gray-600 mb-6">Your current booking</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Select Vehicle</h3>
+            <p className="text-sm text-gray-600 mb-6">Choose which vehicle to swap battery for</p>
 
-            <Card className="p-6 bg-white">
-              <div className="mb-6">
-                <span className="inline-block px-3 py-1 bg-[#A2F200] text-black text-xs font-medium rounded">
-                  Confirmed
-                </span>
-              </div>
-
-              <div className="mb-6">
-                <h4 className="font-semibold text-gray-900 mb-2">Downtown Hub</h4>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Clock className="w-4 h-4" />
-                  <span>Today at 14:30</span>
-                </div>
-              </div>
-
-              {/* QR Code */}
-              <div className="bg-gray-100 rounded-lg p-8 flex items-center justify-center mb-6">
-                <div className="text-center">
-                  <div className="w-32 h-32 bg-gray-300 rounded-lg flex items-center justify-center mx-auto mb-2">
-                    <svg className="w-20 h-20 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M3 11h8V3H3v8zm10 0h8V3h-8v8zM3 21h8v-8H3v8zm10 0h8v-8h-8v8z" />
-                    </svg>
-                  </div>
-                  <p className="text-sm font-mono text-gray-600">SW-2024-001</p>
-                </div>
-              </div>
-
-              <Button className="w-full bg-black text-white hover:bg-gray-900 h-10">
-                <Zap className="w-4 h-4 mr-2" />
-                Check-in
-              </Button>
-
-              <button className="w-full mt-3 text-[#7241CE] hover:text-[#5a2fa0] font-medium text-sm">
-                View Details
-              </button>
-            </Card>
+            <VehicleSelector
+              vehicles={vehicles}
+              selectedVehicleId={selectedVehicleId}
+              onSelectVehicle={setSelectedVehicleId}
+            />
           </div>
 
-          {/* Subscription Status */}
+          {/* Right: Service Package Selection */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Subscription Status</h3>
-            <p className="text-sm text-gray-600 mb-6">Your current plan and usage</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Select Service Package</h3>
+            <p className="text-sm text-gray-600 mb-6">Choose your preferred payment option</p>
 
-            <Card className="p-6 bg-white">
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-semibold text-gray-900">Monthly Unlimited</h4>
-                  <span className="px-3 py-1 bg-black text-white text-xs font-medium rounded">Active</span>
-                </div>
+            <ServicePackageSelector
+              selectedPackageId={selectedPackageId}
+              onSelectPackage={setSelectedPackageId}
+              monthlySubscription={monthlySubscription}
+            />
 
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-gray-600">Swaps Used</span>
-                      <span className="text-sm font-semibold text-gray-900">12 / Unlimited</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-[#A2F200] h-2 rounded-full" style={{ width: "100%" }}></div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Next Invoice:</span>
-                      <span className="text-sm font-semibold text-gray-900">2024-02-15</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <Button className="w-full bg-black text-white hover:bg-gray-900 h-10">
-                <Zap className="w-4 h-4 mr-2" />
-                Manage Plan
-              </Button>
-            </Card>
+            {/* Booking Button */}
+            <Button
+              className="w-full mt-6 bg-black text-white hover:bg-gray-900 h-12 text-base font-semibold"
+              onClick={handleBooking}
+              disabled={!selectedVehicleId || !selectedPackageId}
+            >
+              Booking
+            </Button>
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState } from "react"
-import { Menu, Home, User, History, Zap, LifeBuoy, MapPin } from "lucide-react"
+import { Menu, Home, Car, History, Zap, MessageSquare, AlertCircle, MapPin } from "lucide-react"
 import { useRouter, usePathname } from "next/navigation"
 
 export function BookingSidebar() {
@@ -33,6 +33,15 @@ export function BookingSidebar() {
           sidebarOpen={sidebarOpen}
           onClick={() => router.push("/booking/find-stations")}
         />
+
+        <NavItem
+          icon={<Car className="w-5 h-5" />}
+          label="Vehicles"
+          active={isActive("/booking/vehicles")}
+          sidebarOpen={sidebarOpen}
+          onClick={() => router.push("/booking/vehicles")}
+        />
+
         <NavItem
           icon={<Zap className="w-5 h-5" />}
           label="Swap"
@@ -40,6 +49,7 @@ export function BookingSidebar() {
           sidebarOpen={sidebarOpen}
           onClick={() => router.push("/booking/swap")}
         />
+
         <NavItem
           icon={<History className="w-5 h-5" />}
           label="History"
@@ -47,19 +57,21 @@ export function BookingSidebar() {
           sidebarOpen={sidebarOpen}
           onClick={() => router.push("/booking/history")}
         />
+
         <NavItem
-          icon={<User className="w-5 h-5" />}
-          label="Profile"
-          active={isActive("/booking/profile")}
+          icon={<MessageSquare className="w-5 h-5" />}
+          label="Feedback"
+          active={isActive("/booking/feedback")}
           sidebarOpen={sidebarOpen}
-          onClick={() => router.push("/booking/profile")}
+          onClick={() => router.push("/booking/feedback")}
         />
+
         <NavItem
-          icon={<LifeBuoy className="w-5 h-5" />}
-          label="Support"
-          active={isActive("/booking/support")}
+          icon={<AlertCircle className="w-5 h-5" />}
+          label="Report"
+          active={isActive("/booking/report")}
           sidebarOpen={sidebarOpen}
-          onClick={() => router.push("/booking/support")}
+          onClick={() => router.push("/booking/report")}
         />
       </nav>
 

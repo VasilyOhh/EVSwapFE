@@ -5,7 +5,7 @@ import useSWR from "swr"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
-import { MapPin, Clock, Star, Filter, Zap, Loader2, X } from "lucide-react"
+import { MapPin, Clock, Filter, Zap, Loader2 } from "lucide-react"
 import { BookingHeader } from "@/components/booking-header"
 
 interface Station {
@@ -23,46 +23,46 @@ interface Station {
 
 // Fetcher với authentication token
 const fetcher = async (url: string) => {
-  const token = localStorage.getItem('token');
-  
-  console.log('Fetching:', url);
-  console.log('Token exists:', !!token);
-  
+  const token = localStorage.getItem("token")
+
+  console.log("Fetching:", url)
+  console.log("Token exists:", !!token)
+
   const res = await fetch(url, {
     headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
     },
-  });
-  
-  console.log('Response status:', res.status);
-  
+  })
+
+  console.log("Response status:", res.status)
+
   if (!res.ok) {
-    throw new Error(`API Error: ${res.status} - ${res.statusText}`);
+    throw new Error(`API Error: ${res.status} - ${res.statusText}`)
   }
-  
-  const data = await res.json();
-  console.log('Raw data from API:', data);
-  
+
+  const data = await res.json()
+  console.log("Raw data from API:", data)
+
   // Transform data từ backend format sang Station interface
   return data.map((item: any) => ({
     id: item.stationID?.toString() || Math.random().toString(),
-    name: item.stationName || 'Unknown Station',
-    address: item.address || 'No address',
+    name: item.stationName || "Unknown Station",
+    address: item.address || "No address",
     available: item.availableSlots || 5,
     total: item.totalSlots || 10,
-    time: item.operatingHours || '24/7',
+    time: item.operatingHours || "24/7",
     distance: `${item.distanceKm?.toFixed(1) || 0} km`,
     price: item.pricePerSwap || 5,
     rating: item.rating || 4.5,
-    status: (item.status?.toLowerCase() || 'open') as "open" | "maintenance" | "closed"
-  }));
-};
+    status: (item.status?.toLowerCase() || "open") as "open" | "maintenance" | "closed",
+  }))
+}
 
 export default function FindStationsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [MapComponent, setMapComponent] = useState<any>(null)
-  const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null)
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [locationError, setLocationError] = useState<string | null>(null)
   const [isLoadingLocation, setIsLoadingLocation] = useState(true)
   const [radiusKm, setRadiusKm] = useState(5)
@@ -75,10 +75,10 @@ export default function FindStationsPage() {
         (position) => {
           setUserLocation({
             lat: position.coords.latitude,
-            lng: position.coords.longitude
+            lng: position.coords.longitude,
           })
           setIsLoadingLocation(false)
-          console.log('User location:', position.coords.latitude, position.coords.longitude)
+          console.log("User location:", position.coords.latitude, position.coords.longitude)
         },
         (error) => {
           console.error("Geolocation error:", error)
@@ -86,21 +86,21 @@ export default function FindStationsPage() {
           // Fallback to HCM City
           setUserLocation({
             lat: 10.75819,
-            lng: 106.65405
+            lng: 106.65405,
           })
           setIsLoadingLocation(false)
         },
         {
           enableHighAccuracy: true,
           timeout: 10000,
-          maximumAge: 0
-        }
+          maximumAge: 0,
+        },
       )
     } else {
       setLocationError("Geolocation is not supported by your browser")
       setUserLocation({
         lat: 10.75819,
-        lng: 106.65405
+        lng: 106.65405,
       })
       setIsLoadingLocation(false)
     }
@@ -113,14 +113,14 @@ export default function FindStationsPage() {
         const module = await import("@/components/NearbyStationsMap")
         setMapComponent(() => module.default)
       } catch (err) {
-        console.error('Failed to load map:', err)
+        console.error("Failed to load map:", err)
       }
     }
     loadMap()
   }, [])
 
   // Build API URL
-  const apiUrl = userLocation 
+  const apiUrl = userLocation
     ? `http://localhost:8080/api/stations/nearby?lat=${userLocation.lat}&lng=${userLocation.lng}&radiusKm=${radiusKm}`
     : null
 
@@ -129,37 +129,34 @@ export default function FindStationsPage() {
     data: stations = [],
     isLoading,
     error,
-    mutate
-  } = useSWR<Station[]>(
-    apiUrl,
-    fetcher,
-    {
-      revalidateOnFocus: false,
-      dedupingInterval: 60000,
-      onError: (err) => {
-        console.error('SWR Error:', err)
-      }
-    }
-  )
+    mutate,
+  } = useSWR<Station[]>(apiUrl, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 60000,
+    onError: (err) => {
+      console.error("SWR Error:", err)
+    },
+  })
 
   // Close filter menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement
-      if (showFilterMenu && !target.closest('button')) {
+      if (showFilterMenu && !target.closest("button")) {
         setShowFilterMenu(false)
       }
     }
-    
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [showFilterMenu])
 
   const filteredStations = stations
     .filter((s) => s.name && s.address)
-    .filter((station) =>
-      station.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      station.address.toLowerCase().includes(searchQuery.toLowerCase())
+    .filter(
+      (station) =>
+        station.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        station.address.toLowerCase().includes(searchQuery.toLowerCase()),
     )
 
   const refreshLocation = () => {
@@ -168,7 +165,7 @@ export default function FindStationsPage() {
       (position) => {
         setUserLocation({
           lat: position.coords.latitude,
-          lng: position.coords.longitude
+          lng: position.coords.longitude,
         })
         setLocationError(null)
         setIsLoadingLocation(false)
@@ -177,7 +174,7 @@ export default function FindStationsPage() {
       (error) => {
         setLocationError(error.message)
         setIsLoadingLocation(false)
-      }
+      },
     )
   }
 
@@ -189,12 +186,8 @@ export default function FindStationsPage() {
         <div className="flex gap-6 p-8">
           {/* Map Section - grows with content */}
           <div className="w-1/2 flex-shrink-0">
-            <Card className="border-0 shadow-lg overflow-hidden" style={{ minHeight: '600px' }}>
-              {MapComponent ? (
-                <MapComponent />
-              ) : (
-                <div className="p-4 text-gray-500">Loading map...</div>
-              )}
+            <Card className="border-0 shadow-lg overflow-hidden" style={{ minHeight: "600px" }}>
+              {MapComponent ? <MapComponent /> : <div className="p-4 text-gray-500">Loading map...</div>}
             </Card>
           </div>
 
@@ -204,12 +197,7 @@ export default function FindStationsPage() {
             {locationError && (
               <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-yellow-800 text-sm flex items-center justify-between">
                 <span>⚠️ {locationError}</span>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={refreshLocation}
-                  className="ml-2 h-7"
-                >
+                <Button variant="outline" size="sm" onClick={refreshLocation} className="ml-2 h-7 bg-transparent">
                   Retry
                 </Button>
               </div>
@@ -224,9 +212,9 @@ export default function FindStationsPage() {
 
             <div className="mb-4">
               <div className="flex items-center gap-2 mb-3 relative">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="gap-2 bg-transparent relative"
                   onClick={() => setShowFilterMenu(!showFilterMenu)}
                 >
@@ -247,7 +235,7 @@ export default function FindStationsPage() {
                           mutate() // Refresh data with new radius
                         }}
                         className={`w-full text-left px-3 py-2 rounded text-sm hover:bg-gray-100 transition-colors ${
-                          radiusKm === radius ? 'bg-[#A2F200] text-black font-semibold' : 'text-gray-700'
+                          radiusKm === radius ? "bg-[#A2F200] text-black font-semibold" : "text-gray-700"
                         }`}
                       >
                         Within {radius}km
@@ -273,12 +261,7 @@ export default function FindStationsPage() {
                 <div className="p-4 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
                   <strong>Failed to load stations</strong>
                   <p className="mt-1 text-xs">{error.message}</p>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => mutate()}
-                    className="mt-2"
-                  >
+                  <Button variant="outline" size="sm" onClick={() => mutate()} className="mt-2">
                     Try Again
                   </Button>
                 </div>
@@ -292,9 +275,7 @@ export default function FindStationsPage() {
               )}
 
               {!isLoading && filteredStations.length === 0 && !error && (
-                <div className="p-4 text-center text-gray-500">
-                  No stations found within {radiusKm}km
-                </div>
+                <div className="p-4 text-center text-gray-500">No stations found within {radiusKm}km</div>
               )}
 
               {filteredStations.map((station) => (
@@ -332,16 +313,15 @@ export default function FindStationsPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between mb-3 flex-1">
-                    <span className="font-semibold text-gray-900">${station.price}/swap</span>
-                    <div className="flex items-center gap-1">
-                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                      <span className="text-xs text-gray-600">{station.rating}</span>
-                    </div>
-                  </div>
-
                   <div className="flex justify-end">
-                    <Button className="bg-[#A2F200] text-black hover:bg-[#8fd600] h-7 px-4 text-xs">
+                    <Button
+                      className="bg-[#A2F200] text-black hover:bg-[#8fd600] h-7 px-4 text-xs"
+                      onClick={() => {
+                        // Store station info in localStorage for swap page
+                        localStorage.setItem("selectedStation", JSON.stringify(station))
+                        window.location.href = "/booking/swap"
+                      }}
+                    >
                       Reserve
                     </Button>
                   </div>
