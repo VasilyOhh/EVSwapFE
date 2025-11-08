@@ -6,7 +6,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "EVSwap",
+  title: "EVSwap",  
     generator: 'v0.app'
 }
 

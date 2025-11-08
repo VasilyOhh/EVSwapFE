@@ -1,11 +1,21 @@
-"use client"
+"use client";
 
-import { Card } from "@/components/ui/card"
-import { BookingHeader } from "@/components/booking-header"
-import { Clock, Zap } from "lucide-react"
+import { Card } from "@/components/ui/card";
+import { BookingHeader } from "@/components/booking-header";
+import { Clock, Zap } from "lucide-react";
+
+type SwapHistoryItem = {
+  id: number;
+  station: string;
+  date: string;
+  time: string;
+  duration: string;
+  price: number;
+  status: "success" | "failed";
+};
 
 export default function HistoryPage() {
-  const swapHistory = [
+  const swapHistory: SwapHistoryItem[] = [
     {
       id: 1,
       station: "Downtown Hub",
@@ -13,6 +23,7 @@ export default function HistoryPage() {
       time: "14:30",
       duration: "5 min",
       price: 25,
+      status: "success",
     },
     {
       id: 2,
@@ -21,6 +32,7 @@ export default function HistoryPage() {
       time: "10:15",
       duration: "4 min",
       price: 25,
+      status: "success",
     },
     {
       id: 3,
@@ -29,17 +41,16 @@ export default function HistoryPage() {
       time: "16:45",
       duration: "6 min",
       price: 30,
+      status: "failed",
     },
-  ]
+  ];
 
   return (
     <>
       <BookingHeader title="History" />
-
       <div className="flex-1 overflow-auto p-8">
-        <div className="max-w-4xl">
+        <div className="max-w-4xl mx-auto">
           <h3 className="text-lg font-semibold text-gray-900 mb-6">Swap History</h3>
-
           <div className="space-y-4">
             {swapHistory.map((swap) => (
               <Card key={swap.id} className="p-6 hover:shadow-md transition-shadow">
@@ -57,6 +68,13 @@ export default function HistoryPage() {
                         <Zap className="w-4 h-4" />
                         <span>Duration: {swap.duration}</span>
                       </div>
+                      <div className="mt-2">
+                        {swap.status === "success" ? (
+                          <span className="text-green-600 font-semibold">Payment Successful</span>
+                        ) : (
+                          <span className="text-red-600 font-semibold">Payment Failed</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div className="text-right">
@@ -69,5 +87,5 @@ export default function HistoryPage() {
         </div>
       </div>
     </>
-  )
+  );
 }

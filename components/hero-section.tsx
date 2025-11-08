@@ -10,28 +10,31 @@ export function HeroSection() {
   const { isLoggedIn, user, isLoading } = useAuth()
   const router = useRouter()
 
+  // ✅ Định nghĩa đường dẫn cho từng vai trò
+  const ROLE_PATH_MAP: Record<string, string> = {
+    admin: "/management",          
+    staff: "/staff/queue",
+    user: "/booking/find-stations",
+  }
+
   const handleGetStarted = () => {
-    console.log("[v0] Get Started clicked - isLoggedIn:", isLoggedIn, "isLoading:", isLoading, "user:", user)
+    console.log("[HeroSection] Get Started clicked - isLoggedIn:", isLoggedIn, "isLoading:", isLoading, "user:", user)
 
     if (isLoading) {
-      console.log("[v0] Still loading auth state, please wait")
+      console.log("[HeroSection] Still loading auth state, please wait")
       return
     }
 
     if (isLoggedIn && user) {
-      const userRole = user.role?.toLowerCase()
-      console.log("[v0] User role (lowercase):", userRole)
+      const userRole = String(user.role ?? "user").toLowerCase()
+      console.log("[HeroSection] User role (lowercase):", userRole)
 
-      if (userRole === "staff") {
-        console.log("[v0] Redirecting staff user to queue page")
-        router.push("/staff/queue")
-      } else {
-        console.log("[v0] Redirecting regular user to find-stations page")
-        router.push("/booking/find-stations")
-      }
+      // Lấy đường dẫn phù hợp với role
+      const target = ROLE_PATH_MAP[userRole] ?? ROLE_PATH_MAP.user
+      console.log(`[HeroSection] Redirecting ${userRole} to:`, target)
+      router.push(target)
     } else {
-      // If not logged in, go to sign in page
-      console.log("[v0] Redirecting to signin page")
+      console.log("[HeroSection] Redirecting to signin page")
       router.push("/signin")
     }
   }
@@ -40,6 +43,7 @@ export function HeroSection() {
     <section className="pt-24 pb-12 md:pt-32 md:pb-20">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* LEFT SIDE */}
           <div className="space-y-8">
             <div className="inline-flex items-center gap-2.5 text-base md:text-lg">
               <Zap className="w-5 h-5 text-[#A2F200]" />
@@ -64,6 +68,7 @@ export function HeroSection() {
               >
                 Get Started
               </Button>
+
               <Button size="lg" className="bg-[#A2F200] text-black hover:bg-[#8fd600]" asChild>
                 <a href="#stations">
                   <MapPin className="w-4 h-4 mr-2" />
@@ -89,6 +94,7 @@ export function HeroSection() {
             </div>
           </div>
 
+          {/* RIGHT SIDE */}
           <div className="relative">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl">
               <Image
@@ -107,6 +113,7 @@ export function HeroSection() {
   )
 }
 
+// ⚡ Custom icon (thay vì import từ Lucide để nhẹ hơn)
 function Zap({ className }: { className?: string }) {
   return (
     <svg

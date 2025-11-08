@@ -1,48 +1,51 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Globe, Zap, LogOut } from "lucide-react"
-import { useAuth } from "@/hooks/use-auth"
-import { useState, useEffect, useRef } from "react"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Globe, Zap, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 
 export function Header() {
-  const { isLoggedIn, user, logout } = useAuth()
-  const [showDropdown, setShowDropdown] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
+  const { isLoggedIn, user, logout } = useAuth();
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setShowDropdown(false)
+        setShowDropdown(false);
       }
     }
-
-    if (showDropdown) {
-      document.addEventListener("mousedown", handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [showDropdown])
+    if (showDropdown) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showDropdown]);
 
   const handleLogout = () => {
-    logout()
-    setShowDropdown(false)
-    window.location.href = "/"
-  }
+    logout();
+    setShowDropdown(false);
+    router.replace("/");
+  };
 
-  const getInitial = () => {
-    if (!user?.userName) return "U"
-    return user.userName.charAt(0).toUpperCase()
-  }
+  const getInitial = () => (user?.userName ? user.userName.charAt(0).toUpperCase() : "U");
+
+  const handleManagementClick = () => {
+    if (user?.role?.toLowerCase() === "admin") {
+      router.push("/admin/management"); // ✅ đổi sang đúng đường dẫn nếu bạn để ở /app/admin/management/page.tsx
+    } else {
+      // Driver users should go to the booking page at /booking/find-stations
+      router.push("/booking/find-stations");
+    }
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-[#8B5FE8]">
       <div className="absolute inset-0 bg-[url('/modern-electric-vehicle-charging-station-technolog.jpg')] bg-cover bg-center opacity-20" />
       <div className="absolute inset-0 bg-[#7241CE]/95" />
 
+      {/* Decorative background grid */}
       <div className="absolute inset-0 opacity-10">
         <div
           className="absolute inset-0"
@@ -73,6 +76,7 @@ export function Header() {
 
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         <div className="flex items-center justify-between h-16">
+          {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-[#A2F200] flex items-center justify-center">
               <Zap className="w-5 h-5 text-black" />
@@ -80,6 +84,7 @@ export function Header() {
             <span className="text-xl font-semibold text-white">EVSwap</span>
           </Link>
 
+          {/* Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             <Link href="#features" className="text-sm text-white/90 hover:text-[#A2F200] transition-colors">
               Features
@@ -93,8 +98,19 @@ export function Header() {
             <Link href="#contact" className="text-sm text-white/90 hover:text-[#A2F200] transition-colors">
               Contact
             </Link>
+
+            {/* ✅ ADMIN ONLY */}
+            {user?.role?.toLowerCase() === "admin" && (
+              <button
+                onClick={handleManagementClick}
+                className="text-sm text-[#A2F200] font-semibold hover:text-white transition-colors"
+              >
+                System management
+              </button>
+            )}
           </nav>
 
+          {/* Right section */}
           <div className="flex items-center gap-4">
             <button className="flex items-center gap-2 text-sm text-white/80 hover:text-white transition-colors">
               <Globe className="w-4 h-4" />
@@ -115,7 +131,9 @@ export function Header() {
                     <div className="px-4 py-3 border-b border-gray-100">
                       <p className="text-sm font-semibold text-gray-900">{user.fullName}</p>
                       <p className="text-xs text-gray-500 mt-1">@{user.userName}</p>
-                      <p className="text-xs text-gray-500 mt-1">{user.role ? `Role: ${user.role}` : "Role: N/A"}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {user.role ? `Role: ${user.role}` : "Role: N/A"}
+                      </p>
                     </div>
                     <button
                       onClick={handleLogout}
@@ -136,5 +154,5 @@ export function Header() {
         </div>
       </div>
     </header>
-  )
+  );
 }
